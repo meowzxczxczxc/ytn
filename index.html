@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>СТЕНДОФ 228 - Аркада</title>
+    <title>СТЕНДОФ 228 - Мультиплеер</title>
     <style>
         * {
             margin: 0;
@@ -15,274 +15,274 @@
             background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460);
             color: white;
             font-family: 'Arial', sans-serif;
-            min-height: 100vh;
             overflow: hidden;
         }
 
         .game-container {
-            position: relative;
-            width: 100vw;
+            display: grid;
+            grid-template-columns: 1fr 300px;
             height: 100vh;
+            gap: 10px;
+            padding: 10px;
         }
 
         #gameCanvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             background: linear-gradient(180deg, #000428, #004e92);
+            border-radius: 15px;
+            border: 3px solid #00ff88;
         }
 
-        .ui-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .score-display {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 2rem;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-            background: rgba(0,0,0,0.5);
-            padding: 10px 20px;
-            border-radius: 10px;
-            border: 2px solid #00ff88;
+        .players-list {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            border: 2px solid #4ecdc4;
+            flex: 1;
+        }
+
+        .chat-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            border: 2px solid #ff6b6b;
+            display: flex;
+            flex-direction: column;
+            height: 300px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 5px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .chat-input button {
+            padding: 8px 15px;
+            background: #4ecdc4;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .player-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
         }
 
         .health-bar {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 200px;
-            height: 30px;
+            width: 60px;
+            height: 8px;
             background: rgba(255,0,0,0.3);
-            border-radius: 15px;
-            border: 2px solid #ff4444;
+            border-radius: 4px;
             overflow: hidden;
         }
 
         .health-fill {
-            width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, #ff4444, #ffaa00);
-            transition: width 0.3s ease;
+            background: linear-gradient(90deg, #00ff88, #00cc66);
+            transition: width 0.3s;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .connected {
+            background: rgba(0,255,136,0.3);
+            border: 2px solid #00ff88;
+        }
+
+        .disconnected {
+            background: rgba(255,107,107,0.3);
+            border: 2px solid #ff6b6b;
         }
 
         .game-title {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 4rem;
-            font-weight: bold;
             text-align: center;
-            text-shadow: 3px 3px 10px rgba(0,0,0,0.8);
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: titlePulse 2s infinite;
-        }
-
-        @keyframes titlePulse {
-            0% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.05); }
-            100% { transform: translate(-50%, -50%) scale(1); }
-        }
-
-        .start-button {
-            position: absolute;
-            top: 60%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            border-radius: 25px;
-            cursor: pointer;
-            pointer-events: all;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .start-button:hover {
-            transform: translateX(-50%) scale(1.1);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-        }
-
-        .controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            background: rgba(0,0,0,0.7);
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #00ff88;
-        }
-
-        .game-over {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            background: rgba(0,0,0,0.9);
-            padding: 40px;
-            border-radius: 20px;
-            border: 3px solid #ff4444;
-            display: none;
-        }
-
-        .power-up {
-            position: absolute;
-            font-size: 1.2rem;
-            font-weight: bold;
-            animation: powerUpFloat 3s ease-in-out infinite;
-        }
-
-        @keyframes powerUpFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .mobile-controls {
-            position: absolute;
-            bottom: 100px;
-            width: 100%;
-            display: none;
-            justify-content: space-between;
-            padding: 0 50px;
-        }
-
-        .mobile-btn {
-            width: 80px;
-            height: 80px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: white;
-            pointer-events: all;
-            user-select: none;
-        }
-
-        @media (max-width: 768px) {
-            .mobile-controls {
-                display: flex;
-            }
-            
-            .game-title {
-                font-size: 2.5rem;
-            }
-            
-            .score-display {
-                font-size: 1.5rem;
-            }
         }
     </style>
 </head>
 <body>
+    <div class="connection-status" id="connectionStatus">
+        Подключение...
+    </div>
+
     <div class="game-container">
-        <canvas id="gameCanvas"></canvas>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
         
-        <div class="ui-overlay">
-            <div class="score-display">ОЧКИ: <span id="score">0</span></div>
-            
-            <div class="health-bar">
-                <div class="health-fill" id="healthFill"></div>
+        <div class="sidebar">
+            <div class="players-list">
+                <div class="game-title">СТЕНДОФ 228</div>
+                <div>Онлайн: <span id="onlineCount">0</span></div>
+                <div id="playersList"></div>
             </div>
             
-            <div class="game-title" id="gameTitle">
-                СТЕНДОФ 228<br>
-                <span style="font-size: 2rem;">КОСМИЧЕСКАЯ БИТВА</span>
-            </div>
-            
-            <button class="start-button" id="startButton">СТАРТ ИГРЫ</button>
-            
-            <div class="controls">
-                Управление: ← → или A D для движения, ПРОБЕЛ для стрельбы
-            </div>
-            
-            <div class="mobile-controls">
-                <div class="mobile-btn" id="leftBtn">←</div>
-                <div class="mobile-btn" id="shootBtn">⚡</div>
-                <div class="mobile-btn" id="rightBtn">→</div>
-            </div>
-            
-            <div class="game-over" id="gameOver">
-                <h2 style="color: #ff4444; font-size: 3rem;">ИГРА ОКОНЧЕНА!</h2>
-                <p style="font-size: 2rem; margin: 20px 0;">Счёт: <span id="finalScore">0</span></p>
-                <button class="start-button" onclick="restartGame()">ИГРАТЬ СНОВА</button>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Введите сообщение..." maxlength="100">
+                    <button onclick="sendMessage()">Отпр.</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        class Game {
+        class MultiplayerGame {
             constructor() {
                 this.canvas = document.getElementById('gameCanvas');
                 this.ctx = this.canvas.getContext('2d');
-                this.scoreElement = document.getElementById('score');
-                this.healthFill = document.getElementById('healthFill');
-                this.gameOverScreen = document.getElementById('gameOver');
-                this.finalScoreElement = document.getElementById('finalScore');
-                this.startButton = document.getElementById('startButton');
-                this.gameTitle = document.getElementById('gameTitle');
+                this.connectionStatus = document.getElementById('connectionStatus');
+                this.playersList = document.getElementById('playersList');
+                this.chatMessages = document.getElementById('chatMessages');
+                this.onlineCount = document.getElementById('onlineCount');
                 
-                this.resize();
-                window.addEventListener('resize', () => this.resize());
-                
-                // Игровые переменные
-                this.gameState = 'menu'; // menu, playing, gameover
-                this.score = 0;
-                this.health = 100;
-                
-                // Игровые объекты
-                this.player = {
-                    x: this.canvas.width / 2,
-                    y: this.canvas.height - 100,
-                    width: 60,
-                    height: 80,
-                    speed: 8,
-                    color: '#4ecdc4'
-                };
-                
+                this.ws = null;
+                this.playerId = null;
+                this.players = new Map();
                 this.bullets = [];
-                this.enemies = [];
-                this.particles = [];
                 this.powerUps = [];
                 this.keys = {};
                 
+                this.connect();
                 this.setupEventListeners();
                 this.gameLoop();
             }
             
-            resize() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
+            connect() {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${window.location.host}`;
+                
+                this.ws = new WebSocket(wsUrl);
+                
+                this.ws.onopen = () => {
+                    this.connectionStatus.textContent = '✅ Подключено';
+                    this.connectionStatus.className = 'connection-status connected';
+                };
+                
+                this.ws.onclose = () => {
+                    this.connectionStatus.textContent = '❌ Отключено';
+                    this.connectionStatus.className = 'connection-status disconnected';
+                    
+                    // Переподключение через 3 секунды
+                    setTimeout(() => this.connect(), 3000);
+                };
+                
+                this.ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    this.handleMessage(data);
+                };
+            }
+            
+            handleMessage(data) {
+                switch (data.type) {
+                    case 'welcome':
+                        this.playerId = data.playerId;
+                        break;
+                        
+                    case 'gameState':
+                        this.players = new Map(data.players.map(p => [p.id, p]));
+                        this.bullets = data.bullets;
+                        this.powerUps = data.powerUps;
+                        this.updatePlayersList();
+                        break;
+                        
+                    case 'playerJoined':
+                        this.addChatMessage('⚡', `${data.player.name} присоединился к игре`);
+                        break;
+                        
+                    case 'playerLeft':
+                        this.addChatMessage('👋', 'Игрок покинул игру');
+                        break;
+                        
+                    case 'playerKilled':
+                        const killer = this.players.get(data.killer)?.name || 'Неизвестный';
+                        const victim = this.players.get(data.victim)?.name || 'Неизвестный';
+                        this.addChatMessage('💀', `${killer} уничтожил ${victim}! +100 очков`);
+                        break;
+                        
+                    case 'chat':
+                        this.addChatMessage(data.playerName, data.message);
+                        break;
+                }
+            }
+            
+            updatePlayersList() {
+                this.onlineCount.textContent = this.players.size;
+                
+                this.playersList.innerHTML = '';
+                this.players.forEach(player => {
+                    const playerElement = document.createElement('div');
+                    playerElement.className = 'player-item';
+                    playerElement.innerHTML = `
+                        <div>
+                            <strong>${player.name}</strong>
+                            <div>Очки: ${player.score}</div>
+                        </div>
+                        <div>
+                            <div class="health-bar">
+                                <div class="health-fill" style="width: ${player.health}%"></div>
+                            </div>
+                        </div>
+                    `;
+                    this.playersList.appendChild(playerElement);
+                });
+            }
+            
+            addChatMessage(sender, message) {
+                const messageElement = document.createElement('div');
+                messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+                this.chatMessages.appendChild(messageElement);
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
             }
             
             setupEventListeners() {
                 document.addEventListener('keydown', (e) => {
                     this.keys[e.key] = true;
                     
-                    if (e.key === ' ' && this.gameState === 'playing') {
+                    if (e.key === ' ') {
                         this.shoot();
+                        e.preventDefault();
+                    }
+                    
+                    if (e.key === 'Enter') {
+                        document.getElementById('chatInput').focus();
+                        e.preventDefault();
                     }
                 });
                 
@@ -290,203 +290,56 @@
                     this.keys[e.key] = false;
                 });
                 
-                this.startButton.addEventListener('click', () => {
-                    this.startGame();
-                });
-                
-                // Мобильное управление
-                document.getElementById('leftBtn').addEventListener('touchstart', () => {
-                    this.keys['ArrowLeft'] = true;
-                });
-                
-                document.getElementById('leftBtn').addEventListener('touchend', () => {
-                    this.keys['ArrowLeft'] = false;
-                });
-                
-                document.getElementById('rightBtn').addEventListener('touchstart', () => {
-                    this.keys['ArrowRight'] = true;
-                });
-                
-                document.getElementById('rightBtn').addEventListener('touchend', () => {
-                    this.keys['ArrowRight'] = false;
-                });
-                
-                document.getElementById('shootBtn').addEventListener('touchstart', () => {
-                    if (this.gameState === 'playing') {
-                        this.shoot();
+                // Отправка сообщения по Enter
+                document.getElementById('chatInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        sendMessage();
                     }
                 });
-            }
-            
-            startGame() {
-                this.gameState = 'playing';
-                this.score = 0;
-                this.health = 100;
-                this.bullets = [];
-                this.enemies = [];
-                this.particles = [];
-                this.powerUps = [];
-                this.updateUI();
-                this.gameTitle.style.display = 'none';
-                this.startButton.style.display = 'none';
-            }
-            
-            shoot() {
-                this.bullets.push({
-                    x: this.player.x,
-                    y: this.player.y,
-                    width: 4,
-                    height: 20,
-                    speed: 10,
-                    color: '#ff6b6b'
-                });
-            }
-            
-            spawnEnemy() {
-                if (this.gameState !== 'playing') return;
-                
-                this.enemies.push({
-                    x: Math.random() * (this.canvas.width - 50),
-                    y: -50,
-                    width: 40 + Math.random() * 30,
-                    height: 40 + Math.random() * 30,
-                    speed: 2 + Math.random() * 3,
-                    color: `hsl(${Math.random() * 60 + 300}, 70%, 60%)`
-                });
-            }
-            
-            spawnPowerUp() {
-                if (Math.random() < 0.01) {
-                    this.powerUps.push({
-                        x: Math.random() * (this.canvas.width - 30),
-                        y: -30,
-                        width: 30,
-                        height: 30,
-                        speed: 3,
-                        type: Math.random() < 0.5 ? 'health' : 'score'
-                    });
-                }
             }
             
             update() {
-                if (this.gameState !== 'playing') return;
+                if (!this.playerId || !this.players.has(this.playerId)) return;
                 
-                // Движение игрока
+                const player = this.players.get(this.playerId);
+                let moved = false;
+                
                 if (this.keys['ArrowLeft'] || this.keys['a']) {
-                    this.player.x = Math.max(this.player.width / 2, this.player.x - this.player.speed);
+                    player.x -= 5;
+                    moved = true;
                 }
                 if (this.keys['ArrowRight'] || this.keys['d']) {
-                    this.player.x = Math.min(this.canvas.width - this.player.width / 2, this.player.x + this.player.speed);
+                    player.x += 5;
+                    moved = true;
+                }
+                if (this.keys['ArrowUp'] || this.keys['w']) {
+                    player.y -= 5;
+                    moved = true;
+                }
+                if (this.keys['ArrowDown'] || this.keys['s']) {
+                    player.y += 5;
+                    moved = true;
                 }
                 
-                // Обновление пуль
-                this.bullets = this.bullets.filter(bullet => {
-                    bullet.y -= bullet.speed;
-                    return bullet.y > 0;
-                });
+                // Ограничение движения в пределах canvas
+                player.x = Math.max(0, Math.min(this.canvas.width - player.width, player.x));
+                player.y = Math.max(0, Math.min(this.canvas.height - player.height, player.y));
                 
-                // Обновление врагов
-                this.enemies = this.enemies.filter(enemy => {
-                    enemy.y += enemy.speed;
-                    
-                    // Проверка столкновения с игроком
-                    if (this.checkCollision(this.player, enemy)) {
-                        this.health -= 10;
-                        this.createExplosion(enemy.x, enemy.y, enemy.color);
-                        return false;
-                    }
-                    
-                    // Проверка столкновения с пулями
-                    for (let i = this.bullets.length - 1; i >= 0; i--) {
-                        if (this.checkCollision(this.bullets[i], enemy)) {
-                            this.score += 10;
-                            this.createExplosion(enemy.x, enemy.y, enemy.color);
-                            this.bullets.splice(i, 1);
-                            return false;
-                        }
-                    }
-                    
-                    return enemy.y < this.canvas.height + 100;
-                });
-                
-                // Обновление бонусов
-                this.powerUps = this.powerUps.filter(powerUp => {
-                    powerUp.y += powerUp.speed;
-                    
-                    if (this.checkCollision(this.player, powerUp)) {
-                        if (powerUp.type === 'health') {
-                            this.health = Math.min(100, this.health + 20);
-                        } else {
-                            this.score += 50;
-                        }
-                        return false;
-                    }
-                    
-                    return powerUp.y < this.canvas.height + 50;
-                });
-                
-                // Обновление частиц
-                this.particles = this.particles.filter(particle => {
-                    particle.x += particle.vx;
-                    particle.y += particle.vy;
-                    particle.alpha -= 0.02;
-                    return particle.alpha > 0;
-                });
-                
-                // Спавн врагов
-                if (Math.random() < 0.03) {
-                    this.spawnEnemy();
-                }
-                
-                // Спавн бонусов
-                this.spawnPowerUp();
-                
-                // Проверка здоровья
-                if (this.health <= 0) {
-                    this.gameOver();
-                }
-                
-                this.updateUI();
-            }
-            
-            checkCollision(obj1, obj2) {
-                return obj1.x < obj2.x + obj2.width &&
-                       obj1.x + obj1.width > obj2.x &&
-                       obj1.y < obj2.y + obj2.height &&
-                       obj1.y + obj1.height > obj2.y;
-            }
-            
-            createExplosion(x, y, color) {
-                for (let i = 0; i < 15; i++) {
-                    this.particles.push({
-                        x: x,
-                        y: y,
-                        vx: (Math.random() - 0.5) * 8,
-                        vy: (Math.random() - 0.5) * 8,
-                        radius: Math.random() * 3 + 1,
-                        color: color,
-                        alpha: 1
-                    });
+                if (moved && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify({
+                        type: 'move',
+                        x: player.x,
+                        y: player.y
+                    }));
                 }
             }
             
-            updateUI() {
-                this.scoreElement.textContent = this.score;
-                this.healthFill.style.width = `${this.health}%`;
-                
-                if (this.health > 70) {
-                    this.healthFill.style.background = 'linear-gradient(90deg, #00ff88, #00cc66)';
-                } else if (this.health > 30) {
-                    this.healthFill.style.background = 'linear-gradient(90deg, #ffaa00, #ff8800)';
-                } else {
-                    this.healthFill.style.background = 'linear-gradient(90deg, #ff4444, #cc0000)';
+            shoot() {
+                if (this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify({
+                        type: 'shoot'
+                    }));
                 }
-            }
-            
-            gameOver() {
-                this.gameState = 'gameover';
-                this.finalScoreElement.textContent = this.score;
-                this.gameOverScreen.style.display = 'block';
             }
             
             draw() {
@@ -494,39 +347,27 @@
                 this.ctx.fillStyle = 'rgba(0, 4, 40, 0.1)';
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
                 
-                // Рисование звездного фона
-                this.drawStars();
-                
-                // Рисование игрока
-                this.drawPlayer();
+                // Рисование игроков
+                this.players.forEach(player => {
+                    this.drawPlayer(player);
+                    
+                    // Имя игрока
+                    this.ctx.fillStyle = 'white';
+                    this.ctx.font = '12px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText(player.name, player.x + player.width / 2, player.y - 10);
+                    
+                    // Полоска здоровья
+                    this.ctx.fillStyle = 'red';
+                    this.ctx.fillRect(player.x, player.y - 5, player.width, 3);
+                    this.ctx.fillStyle = 'lime';
+                    this.ctx.fillRect(player.x, player.y - 5, player.width * (player.health / 100), 3);
+                });
                 
                 // Рисование пуль
                 this.bullets.forEach(bullet => {
                     this.ctx.fillStyle = bullet.color;
-                    this.ctx.fillRect(bullet.x - bullet.width / 2, bullet.y, bullet.width, bullet.height);
-                    
-                    // Свечение
-                    this.ctx.shadowBlur = 10;
-                    this.ctx.shadowColor = bullet.color;
-                    this.ctx.fillRect(bullet.x - bullet.width / 2, bullet.y, bullet.width, bullet.height);
-                    this.ctx.shadowBlur = 0;
-                });
-                
-                // Рисование врагов
-                this.enemies.forEach(enemy => {
-                    this.ctx.fillStyle = enemy.color;
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(enemy.x, enemy.y);
-                    this.ctx.lineTo(enemy.x + enemy.width, enemy.y);
-                    this.ctx.lineTo(enemy.x + enemy.width / 2, enemy.y + enemy.height);
-                    this.ctx.closePath();
-                    this.ctx.fill();
-                    
-                    // Свечение
-                    this.ctx.shadowBlur = 15;
-                    this.ctx.shadowColor = enemy.color;
-                    this.ctx.fill();
-                    this.ctx.shadowBlur = 0;
+                    this.ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
                 });
                 
                 // Рисование бонусов
@@ -537,73 +378,30 @@
                     this.ctx.fill();
                     
                     this.ctx.fillStyle = 'white';
-                    this.ctx.font = '16px Arial';
+                    this.ctx.font = '12px Arial';
                     this.ctx.textAlign = 'center';
                     this.ctx.textBaseline = 'middle';
                     this.ctx.fillText(powerUp.type === 'health' ? '♥' : '+50', powerUp.x + powerUp.width / 2, powerUp.y + powerUp.height / 2);
                 });
-                
-                // Рисование частиц
-                this.particles.forEach(particle => {
-                    this.ctx.globalAlpha = particle.alpha;
-                    this.ctx.fillStyle = particle.color;
-                    this.ctx.beginPath();
-                    this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-                    this.ctx.fill();
-                });
-                this.ctx.globalAlpha = 1;
             }
             
-            drawStars() {
-                if (!this.stars) {
-                    this.stars = [];
-                    for (let i = 0; i < 100; i++) {
-                        this.stars.push({
-                            x: Math.random() * this.canvas.width,
-                            y: Math.random() * this.canvas.height,
-                            size: Math.random() * 2,
-                            speed: Math.random() * 0.5
-                        });
-                    }
+            drawPlayer(player) {
+                this.ctx.fillStyle = player.color;
+                
+                // Корабль игрока
+                this.ctx.beginPath();
+                this.ctx.moveTo(player.x + player.width / 2, player.y);
+                this.ctx.lineTo(player.x, player.y + player.height);
+                this.ctx.lineTo(player.x + player.width, player.y + player.height);
+                this.ctx.closePath();
+                this.ctx.fill();
+                
+                // Выделение текущего игрока
+                if (player.id === this.playerId) {
+                    this.ctx.strokeStyle = '#00ff88';
+                    this.ctx.lineWidth = 3;
+                    this.ctx.stroke();
                 }
-                
-                this.ctx.fillStyle = 'white';
-                this.stars.forEach(star => {
-                    star.y += star.speed;
-                    if (star.y > this.canvas.height) {
-                        star.y = 0;
-                        star.x = Math.random() * this.canvas.width;
-                    }
-                    this.ctx.beginPath();
-                    this.ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-                    this.ctx.fill();
-                });
-            }
-            
-            drawPlayer() {
-                // Корпус корабля
-                this.ctx.fillStyle = this.player.color;
-                this.ctx.beginPath();
-                this.ctx.moveTo(this.player.x, this.player.y - this.player.height / 2);
-                this.ctx.lineTo(this.player.x - this.player.width / 2, this.player.y + this.player.height / 2);
-                this.ctx.lineTo(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
-                this.ctx.closePath();
-                this.ctx.fill();
-                
-                // Свечение
-                this.ctx.shadowBlur = 20;
-                this.ctx.shadowColor = this.player.color;
-                this.ctx.fill();
-                this.ctx.shadowBlur = 0;
-                
-                // Двигатель
-                this.ctx.fillStyle = '#ff6b6b';
-                this.ctx.beginPath();
-                this.ctx.moveTo(this.player.x - 10, this.player.y + this.player.height / 2);
-                this.ctx.lineTo(this.player.x, this.player.y + this.player.height / 2 + 20);
-                this.ctx.lineTo(this.player.x + 10, this.player.y + this.player.height / 2);
-                this.ctx.closePath();
-                this.ctx.fill();
             }
             
             gameLoop() {
@@ -613,13 +411,23 @@
             }
         }
         
-        function restartGame() {
-            document.getElementById('gameOver').style.display = 'none';
-            game.startGame();
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message && game.ws.readyState === WebSocket.OPEN) {
+                game.ws.send(JSON.stringify({
+                    type: 'chat',
+                    message: message
+                }));
+                input.value = '';
+            }
+            
+            input.focus();
         }
         
         // Запуск игры
-        const game = new Game();
+        const game = new MultiplayerGame();
     </script>
 </body>
 </html>
