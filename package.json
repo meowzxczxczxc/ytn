@@ -1,0 +1,13 @@
+{
+  "name": "standoff-multiplayer",
+  "version": "1.0.0",
+  "description": "Многопользовательская игра СТЕНДОФ 228",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.14.2",
+    "express": "^4.18.2"
+  }
+}
