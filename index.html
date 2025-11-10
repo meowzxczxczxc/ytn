@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Стендоф круто 228</title>
+    <title>СТЕНДОФ 228 - Аркада</title>
     <style>
         * {
             margin: 0;
@@ -12,212 +12,614 @@
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffd166);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460);
             color: white;
-            text-align: center;
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
             overflow: hidden;
         }
 
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
         }
 
-        .container {
-            padding: 2rem;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            animation: containerAppear 1s ease-out;
+        #gameCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #000428, #004e92);
         }
 
-        @keyframes containerAppear {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .main-text {
-            font-size: clamp(2rem, 8vw, 4rem);
-            font-weight: bold;
-            text-shadow: 3px 3px 15px rgba(0,0,0,0.7);
-            animation: pulse 2s infinite ease-in-out;
-            margin-bottom: 1rem;
-            line-height: 1.2;
-        }
-
-        @keyframes pulse {
-            0% { 
-                transform: scale(1);
-                text-shadow: 3px 3px 15px rgba(0,0,0,0.7);
-            }
-            50% { 
-                transform: scale(1.05);
-                text-shadow: 5px 5px 20px rgba(0,0,0,0.9);
-            }
-            100% { 
-                transform: scale(1);
-                text-shadow: 3px 3px 15px rgba(0,0,0,0.7);
-            }
-        }
-
-        .sub-text {
-            font-size: clamp(1rem, 4vw, 1.5rem);
-            opacity: 0.9;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
-            animation: fadeIn 2s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 0.9;
-                transform: translateY(0);
-            }
-        }
-
-        /* Дополнительные декоративные элементы */
-        .floating-elements {
+        .ui-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: -1;
+            z-index: 10;
         }
 
-        .floating-element {
+        .score-display {
             position: absolute;
-            background: rgba(255, 255, 255, 0.1);
+            top: 20px;
+            left: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid #00ff88;
+        }
+
+        .health-bar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 200px;
+            height: 30px;
+            background: rgba(255,0,0,0.3);
+            border-radius: 15px;
+            border: 2px solid #ff4444;
+            overflow: hidden;
+        }
+
+        .health-fill {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ffaa00);
+            transition: width 0.3s ease;
+        }
+
+        .game-title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 3px 3px 10px rgba(0,0,0,0.8);
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: titlePulse 2s infinite;
+        }
+
+        @keyframes titlePulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .start-button {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            pointer-events: all;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .start-button:hover {
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #00ff88;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0,0,0,0.9);
+            padding: 40px;
+            border-radius: 20px;
+            border: 3px solid #ff4444;
+            display: none;
+        }
+
+        .power-up {
+            position: absolute;
+            font-size: 1.2rem;
+            font-weight: bold;
+            animation: powerUpFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes powerUpFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .mobile-controls {
+            position: absolute;
+            bottom: 100px;
+            width: 100%;
+            display: none;
+            justify-content: space-between;
+            padding: 0 50px;
+        }
+
+        .mobile-btn {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
             border-radius: 50%;
-            animation: float 20s infinite linear;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            pointer-events: all;
+            user-select: none;
         }
 
-        @keyframes float {
-            0% {
-                transform: translateY(0) rotate(0deg);
-            }
-            100% {
-                transform: translateY(-100vh) rotate(360deg);
-            }
-        }
-
-        /* Адаптивность для мобильных устройств */
         @media (max-width: 768px) {
-            .container {
-                margin: 1rem;
-                padding: 1.5rem;
+            .mobile-controls {
+                display: flex;
             }
             
-            body {
-                background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
-                background-size: 400% 400%;
+            .game-title {
+                font-size: 2.5rem;
+            }
+            
+            .score-display {
+                font-size: 1.5rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Декоративные плавающие элементы -->
-    <div class="floating-elements" id="floatingElements"></div>
-    
-    <div class="container">
-        <div class="main-text">СТЕНДОФ КРУТО 228</div>
-        <div class="sub-text">Лучший сайт в мире!</div>
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div class="ui-overlay">
+            <div class="score-display">ОЧКИ: <span id="score">0</span></div>
+            
+            <div class="health-bar">
+                <div class="health-fill" id="healthFill"></div>
+            </div>
+            
+            <div class="game-title" id="gameTitle">
+                СТЕНДОФ 228<br>
+                <span style="font-size: 2rem;">КОСМИЧЕСКАЯ БИТВА</span>
+            </div>
+            
+            <button class="start-button" id="startButton">СТАРТ ИГРЫ</button>
+            
+            <div class="controls">
+                Управление: ← → или A D для движения, ПРОБЕЛ для стрельбы
+            </div>
+            
+            <div class="mobile-controls">
+                <div class="mobile-btn" id="leftBtn">←</div>
+                <div class="mobile-btn" id="shootBtn">⚡</div>
+                <div class="mobile-btn" id="rightBtn">→</div>
+            </div>
+            
+            <div class="game-over" id="gameOver">
+                <h2 style="color: #ff4444; font-size: 3rem;">ИГРА ОКОНЧЕНА!</h2>
+                <p style="font-size: 2rem; margin: 20px 0;">Счёт: <span id="finalScore">0</span></p>
+                <button class="start-button" onclick="restartGame()">ИГРАТЬ СНОВА</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Создание плавающих элементов
-        function createFloatingElements() {
-            const container = document.getElementById('floatingElements');
-            const colors = ['rgba(255,107,107,0.2)', 'rgba(78,205,196,0.2)', 'rgba(69,183,209,0.2)', 'rgba(150,206,180,0.2)'];
+        class Game {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.scoreElement = document.getElementById('score');
+                this.healthFill = document.getElementById('healthFill');
+                this.gameOverScreen = document.getElementById('gameOver');
+                this.finalScoreElement = document.getElementById('finalScore');
+                this.startButton = document.getElementById('startButton');
+                this.gameTitle = document.getElementById('gameTitle');
+                
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                
+                // Игровые переменные
+                this.gameState = 'menu'; // menu, playing, gameover
+                this.score = 0;
+                this.health = 100;
+                
+                // Игровые объекты
+                this.player = {
+                    x: this.canvas.width / 2,
+                    y: this.canvas.height - 100,
+                    width: 60,
+                    height: 80,
+                    speed: 8,
+                    color: '#4ecdc4'
+                };
+                
+                this.bullets = [];
+                this.enemies = [];
+                this.particles = [];
+                this.powerUps = [];
+                this.keys = {};
+                
+                this.setupEventListeners();
+                this.gameLoop();
+            }
             
-            for (let i = 0; i < 15; i++) {
-                const element = document.createElement('div');
-                element.className = 'floating-element';
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => {
+                    this.keys[e.key] = true;
+                    
+                    if (e.key === ' ' && this.gameState === 'playing') {
+                        this.shoot();
+                    }
+                });
                 
-                const size = Math.random() * 100 + 20;
-                const color = colors[Math.floor(Math.random() * colors.length)];
+                document.addEventListener('keyup', (e) => {
+                    this.keys[e.key] = false;
+                });
                 
-                element.style.width = `${size}px`;
-                element.style.height = `${size}px`;
-                element.style.background = color;
-                element.style.left = `${Math.random() * 100}vw`;
-                element.style.animationDuration = `${Math.random() * 30 + 20}s`;
-                element.style.animationDelay = `${Math.random() * 5}s`;
+                this.startButton.addEventListener('click', () => {
+                    this.startGame();
+                });
                 
-                container.appendChild(element);
+                // Мобильное управление
+                document.getElementById('leftBtn').addEventListener('touchstart', () => {
+                    this.keys['ArrowLeft'] = true;
+                });
+                
+                document.getElementById('leftBtn').addEventListener('touchend', () => {
+                    this.keys['ArrowLeft'] = false;
+                });
+                
+                document.getElementById('rightBtn').addEventListener('touchstart', () => {
+                    this.keys['ArrowRight'] = true;
+                });
+                
+                document.getElementById('rightBtn').addEventListener('touchend', () => {
+                    this.keys['ArrowRight'] = false;
+                });
+                
+                document.getElementById('shootBtn').addEventListener('touchstart', () => {
+                    if (this.gameState === 'playing') {
+                        this.shoot();
+                    }
+                });
+            }
+            
+            startGame() {
+                this.gameState = 'playing';
+                this.score = 0;
+                this.health = 100;
+                this.bullets = [];
+                this.enemies = [];
+                this.particles = [];
+                this.powerUps = [];
+                this.updateUI();
+                this.gameTitle.style.display = 'none';
+                this.startButton.style.display = 'none';
+            }
+            
+            shoot() {
+                this.bullets.push({
+                    x: this.player.x,
+                    y: this.player.y,
+                    width: 4,
+                    height: 20,
+                    speed: 10,
+                    color: '#ff6b6b'
+                });
+            }
+            
+            spawnEnemy() {
+                if (this.gameState !== 'playing') return;
+                
+                this.enemies.push({
+                    x: Math.random() * (this.canvas.width - 50),
+                    y: -50,
+                    width: 40 + Math.random() * 30,
+                    height: 40 + Math.random() * 30,
+                    speed: 2 + Math.random() * 3,
+                    color: `hsl(${Math.random() * 60 + 300}, 70%, 60%)`
+                });
+            }
+            
+            spawnPowerUp() {
+                if (Math.random() < 0.01) {
+                    this.powerUps.push({
+                        x: Math.random() * (this.canvas.width - 30),
+                        y: -30,
+                        width: 30,
+                        height: 30,
+                        speed: 3,
+                        type: Math.random() < 0.5 ? 'health' : 'score'
+                    });
+                }
+            }
+            
+            update() {
+                if (this.gameState !== 'playing') return;
+                
+                // Движение игрока
+                if (this.keys['ArrowLeft'] || this.keys['a']) {
+                    this.player.x = Math.max(this.player.width / 2, this.player.x - this.player.speed);
+                }
+                if (this.keys['ArrowRight'] || this.keys['d']) {
+                    this.player.x = Math.min(this.canvas.width - this.player.width / 2, this.player.x + this.player.speed);
+                }
+                
+                // Обновление пуль
+                this.bullets = this.bullets.filter(bullet => {
+                    bullet.y -= bullet.speed;
+                    return bullet.y > 0;
+                });
+                
+                // Обновление врагов
+                this.enemies = this.enemies.filter(enemy => {
+                    enemy.y += enemy.speed;
+                    
+                    // Проверка столкновения с игроком
+                    if (this.checkCollision(this.player, enemy)) {
+                        this.health -= 10;
+                        this.createExplosion(enemy.x, enemy.y, enemy.color);
+                        return false;
+                    }
+                    
+                    // Проверка столкновения с пулями
+                    for (let i = this.bullets.length - 1; i >= 0; i--) {
+                        if (this.checkCollision(this.bullets[i], enemy)) {
+                            this.score += 10;
+                            this.createExplosion(enemy.x, enemy.y, enemy.color);
+                            this.bullets.splice(i, 1);
+                            return false;
+                        }
+                    }
+                    
+                    return enemy.y < this.canvas.height + 100;
+                });
+                
+                // Обновление бонусов
+                this.powerUps = this.powerUps.filter(powerUp => {
+                    powerUp.y += powerUp.speed;
+                    
+                    if (this.checkCollision(this.player, powerUp)) {
+                        if (powerUp.type === 'health') {
+                            this.health = Math.min(100, this.health + 20);
+                        } else {
+                            this.score += 50;
+                        }
+                        return false;
+                    }
+                    
+                    return powerUp.y < this.canvas.height + 50;
+                });
+                
+                // Обновление частиц
+                this.particles = this.particles.filter(particle => {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.alpha -= 0.02;
+                    return particle.alpha > 0;
+                });
+                
+                // Спавн врагов
+                if (Math.random() < 0.03) {
+                    this.spawnEnemy();
+                }
+                
+                // Спавн бонусов
+                this.spawnPowerUp();
+                
+                // Проверка здоровья
+                if (this.health <= 0) {
+                    this.gameOver();
+                }
+                
+                this.updateUI();
+            }
+            
+            checkCollision(obj1, obj2) {
+                return obj1.x < obj2.x + obj2.width &&
+                       obj1.x + obj1.width > obj2.x &&
+                       obj1.y < obj2.y + obj2.height &&
+                       obj1.y + obj1.height > obj2.y;
+            }
+            
+            createExplosion(x, y, color) {
+                for (let i = 0; i < 15; i++) {
+                    this.particles.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 8,
+                        vy: (Math.random() - 0.5) * 8,
+                        radius: Math.random() * 3 + 1,
+                        color: color,
+                        alpha: 1
+                    });
+                }
+            }
+            
+            updateUI() {
+                this.scoreElement.textContent = this.score;
+                this.healthFill.style.width = `${this.health}%`;
+                
+                if (this.health > 70) {
+                    this.healthFill.style.background = 'linear-gradient(90deg, #00ff88, #00cc66)';
+                } else if (this.health > 30) {
+                    this.healthFill.style.background = 'linear-gradient(90deg, #ffaa00, #ff8800)';
+                } else {
+                    this.healthFill.style.background = 'linear-gradient(90deg, #ff4444, #cc0000)';
+                }
+            }
+            
+            gameOver() {
+                this.gameState = 'gameover';
+                this.finalScoreElement.textContent = this.score;
+                this.gameOverScreen.style.display = 'block';
+            }
+            
+            draw() {
+                // Очистка canvas
+                this.ctx.fillStyle = 'rgba(0, 4, 40, 0.1)';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Рисование звездного фона
+                this.drawStars();
+                
+                // Рисование игрока
+                this.drawPlayer();
+                
+                // Рисование пуль
+                this.bullets.forEach(bullet => {
+                    this.ctx.fillStyle = bullet.color;
+                    this.ctx.fillRect(bullet.x - bullet.width / 2, bullet.y, bullet.width, bullet.height);
+                    
+                    // Свечение
+                    this.ctx.shadowBlur = 10;
+                    this.ctx.shadowColor = bullet.color;
+                    this.ctx.fillRect(bullet.x - bullet.width / 2, bullet.y, bullet.width, bullet.height);
+                    this.ctx.shadowBlur = 0;
+                });
+                
+                // Рисование врагов
+                this.enemies.forEach(enemy => {
+                    this.ctx.fillStyle = enemy.color;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(enemy.x, enemy.y);
+                    this.ctx.lineTo(enemy.x + enemy.width, enemy.y);
+                    this.ctx.lineTo(enemy.x + enemy.width / 2, enemy.y + enemy.height);
+                    this.ctx.closePath();
+                    this.ctx.fill();
+                    
+                    // Свечение
+                    this.ctx.shadowBlur = 15;
+                    this.ctx.shadowColor = enemy.color;
+                    this.ctx.fill();
+                    this.ctx.shadowBlur = 0;
+                });
+                
+                // Рисование бонусов
+                this.powerUps.forEach(powerUp => {
+                    this.ctx.fillStyle = powerUp.type === 'health' ? '#00ff88' : '#ffaa00';
+                    this.ctx.beginPath();
+                    this.ctx.arc(powerUp.x + powerUp.width / 2, powerUp.y + powerUp.height / 2, powerUp.width / 2, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    this.ctx.fillStyle = 'white';
+                    this.ctx.font = '16px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.textBaseline = 'middle';
+                    this.ctx.fillText(powerUp.type === 'health' ? '♥' : '+50', powerUp.x + powerUp.width / 2, powerUp.y + powerUp.height / 2);
+                });
+                
+                // Рисование частиц
+                this.particles.forEach(particle => {
+                    this.ctx.globalAlpha = particle.alpha;
+                    this.ctx.fillStyle = particle.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+                this.ctx.globalAlpha = 1;
+            }
+            
+            drawStars() {
+                if (!this.stars) {
+                    this.stars = [];
+                    for (let i = 0; i < 100; i++) {
+                        this.stars.push({
+                            x: Math.random() * this.canvas.width,
+                            y: Math.random() * this.canvas.height,
+                            size: Math.random() * 2,
+                            speed: Math.random() * 0.5
+                        });
+                    }
+                }
+                
+                this.ctx.fillStyle = 'white';
+                this.stars.forEach(star => {
+                    star.y += star.speed;
+                    if (star.y > this.canvas.height) {
+                        star.y = 0;
+                        star.x = Math.random() * this.canvas.width;
+                    }
+                    this.ctx.beginPath();
+                    this.ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+            }
+            
+            drawPlayer() {
+                // Корпус корабля
+                this.ctx.fillStyle = this.player.color;
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.player.x, this.player.y - this.player.height / 2);
+                this.ctx.lineTo(this.player.x - this.player.width / 2, this.player.y + this.player.height / 2);
+                this.ctx.lineTo(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
+                this.ctx.closePath();
+                this.ctx.fill();
+                
+                // Свечение
+                this.ctx.shadowBlur = 20;
+                this.ctx.shadowColor = this.player.color;
+                this.ctx.fill();
+                this.ctx.shadowBlur = 0;
+                
+                // Двигатель
+                this.ctx.fillStyle = '#ff6b6b';
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.player.x - 10, this.player.y + this.player.height / 2);
+                this.ctx.lineTo(this.player.x, this.player.y + this.player.height / 2 + 20);
+                this.ctx.lineTo(this.player.x + 10, this.player.y + this.player.height / 2);
+                this.ctx.closePath();
+                this.ctx.fill();
+            }
+            
+            gameLoop() {
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.gameLoop());
             }
         }
-
-        // Добавление интерактивности
-        document.addEventListener('click', function(e) {
-            const ripple = document.createElement('div');
-            ripple.style.position = 'fixed';
-            ripple.style.borderRadius = '50%';
-            ripple.style.background = 'rgba(255,255,255,0.6)';
-            ripple.style.transform = 'translate(-50%, -50%)';
-            ripple.style.animation = 'ripple 0.6s ease-out forwards';
-            ripple.style.pointerEvents = 'none';
-            ripple.style.left = e.clientX + 'px';
-            ripple.style.top = e.clientY + 'px';
-            ripple.style.zIndex = '1000';
-            
-            document.body.appendChild(ripple);
-            
-            setTimeout(() => {
-                ripple.remove();
-            }, 600);
-        });
-
-        // Добавляем стили для ripple эффекта
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes ripple {
-                0% {
-                    width: 0;
-                    height: 0;
-                    opacity: 0.8;
-                }
-                100% {
-                    width: 200px;
-                    height: 200px;
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', function() {
-            createFloatingElements();
-            
-            // Добавляем звук при клике (опционально)
-            const clickSound = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==");
-            
-            document.addEventListener('click', function() {
-                clickSound.play().catch(e => console.log('Автовоспроизведение звука заблокировано'));
-            });
-        });
+        
+        function restartGame() {
+            document.getElementById('gameOver').style.display = 'none';
+            game.startGame();
+        }
+        
+        // Запуск игры
+        const game = new Game();
     </script>
 </body>
 </html>
